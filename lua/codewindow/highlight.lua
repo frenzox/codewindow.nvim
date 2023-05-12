@@ -201,17 +201,10 @@ function M.display_screen_bounds(window)
   local difference = math.ceil((botline - topline) / 4) + 1
 
   local top_y = math.floor(topline / 4)
-
-  if top_y > 0 then
-    api.nvim_buf_add_highlight(
-      window.buffer,
-      underline_namespace,
-      "CodewindowUnderline",
-      top_y - 1,
-      6,
-      6 + config.minimap_width * 3
-    )
+  if top_y < 0 then
+    top_y = 0
   end
+
   local bot_y = top_y + difference - 1
   local buf_height = api.nvim_buf_line_count(window.buffer)
   if bot_y > buf_height - 1 then
@@ -220,14 +213,17 @@ function M.display_screen_bounds(window)
   if bot_y < 0 then
     return
   end
-  api.nvim_buf_add_highlight(
-    window.buffer,
-    underline_namespace,
-    "CodewindowUnderline",
-    bot_y,
-    6,
-    6 + config.minimap_width * 3
-  )
+
+  for i = top_y, bot_y do
+    api.nvim_buf_add_highlight(
+      window.buffer,
+      underline_namespace,
+      "CodewindowUnderline",
+      i,
+      6,
+      6 + config.minimap_width * 3
+    )
+  end
 
   local center = math.floor((top_y + bot_y) / 2) + 1
   api.nvim_win_set_cursor(window.window, { center, 0 })
